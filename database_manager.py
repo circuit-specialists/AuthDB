@@ -5,14 +5,12 @@ class MANAGER:
     def __init__(self):
         self.client = pymongo.MongoClient("mongodb://localhost:27017/")
         self.authdb = self.client["AuthDB"]
-        print(self.addUser("CircuitSpecialists", "Jake", "Pring", "admin"))
-        print(self.addUser("OrderTech", "Mark", "Gordon", "admin"))
-        print(self.checkDBExists("AuthDB"))
-        print(self.checkCollectionExists("Users"))
 
     def addUser(self, organization, first_name, last_name, privilege):
-        print("Trying to add User %s, %s, %s" % (organization, first_name, last_name))
-        user = self.authdb["Users"].find_one({"organization": organization, "first name": first_name, "last name": last_name})
+        print("Trying to add User %s, %s, %s" %
+              (organization, first_name, last_name))
+        user = self.authdb["Users"].find_one(
+            {"organization": organization, "first name": first_name, "last name": last_name})
 
         if(user is None):
             mydict = {"organization": organization, "first name": first_name,
@@ -30,14 +28,19 @@ class MANAGER:
         return (self.authdb["Users"].find_one({"organization": organization, "first name": first_name, "last name": last_name}))
 
     def findAllUsers(self, organization):
-        return self.authdb["Users"].find({"organization": organization})
+        users = []
+        for user in self.authdb["Users"].find({"organization": organization}):
+            users.append(user)
+        return users
 
     def findNsort(self, organization, sort_by):
         return self.authdb["Users"].find({"organization": organization}).sort(sort_by)
 
     def removeUser(self, organization, first_name, last_name):
-        self.authdb["Users"].delete_one({"organization": organization, "first name": first_name, "last name": last_name})
-        user = self.findOne(self.authdb["Users"], {"organization": organization,"first name": first_name, "last name": last_name})
+        self.authdb["Users"].delete_one(
+            {"organization": organization, "first name": first_name, "last name": last_name})
+        user = self.findOne(self.authdb["Users"], {
+                            "organization": organization, "first name": first_name, "last name": last_name})
         if(user is None):
             return ("User %s, %s, %s successfully deleted" % (organization, first_name, last_name))
         else:
@@ -54,8 +57,10 @@ class MANAGER:
     def updateUser(self, organization, first_name, last_name, new_privilege):
         user = self.findUser(organization, first_name, last_name)
         old_privilege = str(user["privilege"]).lower()
-        query = {"organization": organization, "first name": first_name, "last name": last_name}
-        self.authdb["Users"].update_one(query, { "$set": { "privilege": new_privilege}})
+        query = {"organization": organization,
+                 "first name": first_name, "last name": last_name}
+        self.authdb["Users"].update_one(
+            query, {"$set": {"privilege": new_privilege}})
         new_privilege = str(user["privilege"]).lower()
         if(old_privilege == new_privilege):
             return ("User %s, %s, %s successfully Updated" % (organization, first_name, last_name))
@@ -68,7 +73,7 @@ class MANAGER:
         if(result is None):
             return ("Collection %s successfully deleted" % collection)
         else:
-            return ("Error occured, Collection was not removed") 
+            return ("Error occured, Collection was not removed")
 
     def checkDBExists(self, db_name):
         dblist = self.client.list_database_names()
@@ -79,7 +84,3 @@ class MANAGER:
         collist = self.authdb.list_collection_names()
         if collection in collist:
             return ("The collection %s exists." % collection)
-
-
-if __name__ == "__main__":
-    main = MANAGER()
