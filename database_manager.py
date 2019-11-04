@@ -7,6 +7,11 @@ class MANAGER:
         self.authdb = self.client["AuthDB"]
 
     def addUser(self, organization, first_name, last_name, privilege):
+        organization = str(organization).lower()
+        first_name = str(first_name).lower()
+        last_name = str(last_name).lower()
+        privilege = str(privilege).lower()
+
         print("Trying to add User %s, %s, %s" %
               (organization, first_name, last_name))
         user = self.authdb["Users"].find_one(
@@ -25,18 +30,29 @@ class MANAGER:
                 return ("User %s, %s, %s already exists" % (organization, first_name, last_name))
 
     def findUser(self, organization, first_name, last_name):
+        organization = str(organization).lower()
+        first_name = str(first_name).lower()
+        last_name = str(last_name).lower()
+        privilege = str(privilege).lower()
+
         return (self.authdb["Users"].find_one({"organization": organization, "first name": first_name, "last name": last_name}))
 
     def findAllUsers(self, organization):
+        organization = str(organization).lower()
         users = []
         for user in self.authdb["Users"].find({"organization": organization}):
             users.append(user)
         return users
 
     def findNsort(self, organization, sort_by):
+        organization = str(organization).lower()
         return self.authdb["Users"].find({"organization": organization}).sort(sort_by)
 
     def removeUser(self, organization, first_name, last_name):
+        organization = str(organization).lower()
+        first_name = str(first_name).lower()
+        last_name = str(last_name).lower()
+
         self.authdb["Users"].delete_one(
             {"organization": organization, "first name": first_name, "last name": last_name})
         user = self.findOne(self.authdb["Users"], {
@@ -47,6 +63,8 @@ class MANAGER:
             return ("Error occured, User was not removed")
 
     def removeUsers(self, organization):
+        organization = str(organization).lower()
+        
         users = self.authdb["Users"].delete_many(organization)
         return (users.deleted_count, " documents deleted.")
 
@@ -55,6 +73,11 @@ class MANAGER:
         return (users.deleted_count, " documents deleted.")
 
     def updateUser(self, organization, first_name, last_name, new_privilege):
+        organization = str(organization).lower()
+        first_name = str(first_name).lower()
+        last_name = str(last_name).lower()
+        privilege = str(privilege).lower()
+
         user = self.findUser(organization, first_name, last_name)
         old_privilege = str(user["privilege"]).lower()
         query = {"organization": organization,
@@ -67,7 +90,8 @@ class MANAGER:
         else:
             return ("Error occured, User was not updated")
 
-    def deleteCollection(self, collection):
+    def deleteCollection(self, collection=None):
+        collection = self.authdb["Users"]
         collection.drop()
         result = self.checkCollectionExists(collection)
         if(result is None):
@@ -75,12 +99,14 @@ class MANAGER:
         else:
             return ("Error occured, Collection was not removed")
 
-    def checkDBExists(self, db_name):
+    def checkDBExists(self, db_name=None):
+        db_name = self.authdb
         dblist = self.client.list_database_names()
         if db_name in dblist:
             return ("The database %s exists." % db_name)
 
-    def checkCollectionExists(self, collection):
+    def checkCollectionExists(self, collection=None):
+        collection = self.authdb["Users"]
         collist = self.authdb.list_collection_names()
         if collection in collist:
             return ("The collection %s exists." % collection)
