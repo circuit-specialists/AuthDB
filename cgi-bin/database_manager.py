@@ -1,12 +1,14 @@
 import pymongo
+import password
 
 
 class MANAGER:
     def __init__(self):
         self.client = pymongo.MongoClient("mongodb://localhost:27017/")
         self.authdb = self.client["AuthDB"]
+        self.pass_hash = password.CYPHER()
 
-    def addUser(self, organization, first_name, last_name, privilege):
+    def addUser(self, organization, first_name, last_name, password, privilege):
         organization = str(organization).lower()
         first_name = str(first_name).lower()
         last_name = str(last_name).lower()
@@ -18,16 +20,31 @@ class MANAGER:
             {"organization": organization, "first name": first_name, "last name": last_name})
 
         if(user is None):
+            password = self.pass_hash.hash_password(password)
             mydict = {"organization": organization, "first name": first_name,
-                      "last name": last_name, "Privilege": privilege}
+                      "last name": last_name, "privilege": privilege, "password": password}
             self.authdb["Users"].insert_one(mydict)
             return ("Successfully added")
         else:
             db_find_organization = str(user["organization"]).lower()
             db_find_firstname = str(user["first name"]).lower()
             db_find_lastname = str(user["last name"]).lower()
-            if(db_find_firstname == str(first_name).lower() and db_find_lastname == str(last_name).lower()):
+            if(db_find_organization == organization and db_find_firstname == first_name and db_find_lastname == last_name):
                 return ("User %s, %s, %s already exists" % (organization, first_name, last_name))
+            else:
+                return ("Strange error occured on addUser")
+
+    def authUser(self, organization, first_name, last_name, password):
+        organization = str(organization).lower()
+        first_name = str(first_name).lower()
+        last_name = str(last_name).lower()
+
+        user = self.authdb["Users"].find_one(
+            {"organization": organization, "first name": first_name, "last name": last_name})
+        if(user == None):
+            return None
+        else:
+            return self.pass_hash.verify_password(str(user["password"]), str(password))
 
     def findUser(self, organization, first_name, last_name):
         organization = str(organization).lower()
@@ -63,7 +80,7 @@ class MANAGER:
 
     def removeUsers(self, organization):
         organization = str(organization).lower()
-        
+
         users = self.authdb["Users"].delete_many(organization)
         return (users.deleted_count, " documents deleted.")
 
@@ -71,11 +88,11 @@ class MANAGER:
         users = self.authdb["Users"].delete_many({})
         return (users.deleted_count, " documents deleted.")
 
-    def updateUser(self, organization, first_name, last_name, new_privilege):
+    def updateUserPRV(self, organization, first_name, last_name, new_privilege):
         organization = str(organization).lower()
         first_name = str(first_name).lower()
         last_name = str(last_name).lower()
-        privilege = str(privilege).lower()
+        new_privilege = str(new_privilege).lower()
 
         user = self.findUser(organization, first_name, last_name)
         old_privilege = str(user["privilege"]).lower()
@@ -83,8 +100,23 @@ class MANAGER:
                  "first name": first_name, "last name": last_name}
         self.authdb["Users"].update_one(
             query, {"$set": {"privilege": new_privilege}})
-        new_privilege = str(user["privilege"]).lower()
         if(old_privilege == new_privilege):
+            return ("User %s, %s, %s successfully Updated" % (organization, first_name, last_name))
+        else:
+            return ("Error occured, User was not updated")
+
+    def updateUserPASS(self, organization, first_name, last_name, new_password):
+        organization = str(organization).lower()
+        first_name = str(first_name).lower()
+        last_name = str(last_name).lower()
+
+        user = self.findUser(organization, first_name, last_name)
+        old_privilege = str(user["password"])
+        query = {"organization": organization,
+                 "first name": first_name, "last name": last_name}
+        self.authdb["Users"].update_one(
+            query, {"$set": {"password": new_password}})
+        if(old_privilege == new_password):
             return ("User %s, %s, %s successfully Updated" % (organization, first_name, last_name))
         else:
             return ("Error occured, User was not updated")

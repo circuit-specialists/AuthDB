@@ -7,13 +7,15 @@ import database_manager
 class CLI:
     def __init__(self):
         parser = argparse.ArgumentParser(description='Option Usage: cli.py --option "values" (must include quotes)')
-        parser.add_argument('start', type=str, help='Start the web service')
-        parser.add_argument('--newUser', metavar='"ORG, FIRST, LAST, PRIVILEGE"',
+        parser.add_argument('start', type=str, nargs='?', help='Start the web service')
+        parser.add_argument('--newUser', metavar='"ORG, FIRST, LAST, PSW, PRIVILEGE"',
                             type=str, help='Create a new user')
         parser.add_argument('--rmUser', metavar='"ORG, FIRST, LAST, PRIVILEGE"',
                             type=str, help='Remove User')
-        parser.add_argument('--updUser', metavar='"ORG, FIRST, LAST, PRIVILEGE"', type=str,
-                            help='Change an existing user')
+        parser.add_argument('--updPSW', metavar='"ORG, FIRST, LAST, new_PSW"', type=str,
+                            help='Change an existing user\'s password')
+        parser.add_argument('--updPRV', metavar='"ORG, FIRST, LAST, new_PRV"', type=str,
+                            help='Change an existing user\'s privilege')
         parser.add_argument('--lsUsers', metavar='ORG', type=str,
                             help='List all Users in an Organization')
         parser.add_argument('--chkdb', metavar='  DB-NAME',
@@ -28,22 +30,29 @@ class CLI:
             organization = user_string.split(',')[0]
             first_name = user_string.split(',')[1]
             last_name = user_string.split(',')[2]
-            privilege = user_string.split(',')[3]
-            print(db_man.addUser(organization, first_name, last_name, privilege))
+            password = user_string.split(',')[3]
+            privilege = user_string.split(',')[4]
+            print(db_man.addUser(organization, first_name, last_name, password, privilege))
         elif(args.rmUser != None):
             user_string = str(args.newUser).replace(" ", "")
             organization = user_string.split(',')[0]
             first_name = user_string.split(',')[1]
             last_name = user_string.split(',')[2]
-            privilege = user_string.split(',')[3]
-            print(db_man.removeUser(organization, first_name, last_name, privilege))
-        elif(args.updUser != None):
+            print(db_man.removeUser(organization, first_name, last_name))
+        elif(args.updPSW != None):
+            user_string = str(args.newUser).replace(" ", "")
+            organization = user_string.split(',')[0]
+            first_name = user_string.split(',')[1]
+            last_name = user_string.split(',')[2]
+            password = user_string.split(',')[3]
+            print(db_man.updateUserPASS(organization, first_name, last_name, password))
+        elif(args.updPRV != None):
             user_string = str(args.newUser).replace(" ", "")
             organization = user_string.split(',')[0]
             first_name = user_string.split(',')[1]
             last_name = user_string.split(',')[2]
             privilege = user_string.split(',')[3]
-            print(db_man.updateUser(organization, first_name, last_name, privilege))
+            print(db_man.updateUserPRV(organization, first_name, last_name, privilege))
         elif(args.lsUsers != None):
             organization = str(args.lsUsers).split(',')[0]
             print(db_man.findAllUsers(organization))
