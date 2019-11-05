@@ -1,8 +1,8 @@
 import argparse
-import database_manager
 import web_server
 import sys
-
+sys.path.append("cgi-bin/")
+import database_manager
 
 class CLI:
     def __init__(self):

@@ -33,7 +33,6 @@ class MANAGER:
         organization = str(organization).lower()
         first_name = str(first_name).lower()
         last_name = str(last_name).lower()
-        privilege = str(privilege).lower()
 
         return (self.authdb["Users"].find_one({"organization": organization, "first name": first_name, "last name": last_name}))
 

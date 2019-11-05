@@ -1,23 +1,37 @@
 import http.server
+import time
+import sys
+
 
 class SERVER:
     def __init__(self):
-        print()
-        #PORT = 8000
-        #Handler = http.server.SimpleHTTPRequestHandler
-        #httpd = http.server.TCPServer(("", PORT), Handler)
-        #http.server.BaseHTTPRequestHandler
+        print("Starting Up HTTP Server...")
+        self.address = ""
+        self.port = 8080
+        self.startServer()
 
-    def run_while_true(self, server_class=http.server, handler_class=http.server.BaseHTTPRequestHandler):
-        """
-        This assumes that keep_running() is a function of no arguments which
-        is tested initially and after each request.  If its return value
-        is true, the server continues.
-        """
-        server_address = ('', 8080)
-        httpd = server_class(server_address, handler_class)
+    def startServer(self):
+        handler = self.cgiHTTP()
+        httpd = http.server.ThreadingHTTPServer(
+            (self.address, self.port), handler)
+        self.start_time = time.time()
         while self.keep_running():
             httpd.handle_request()
 
+    def cgiHTTP(self):
+        handler = http.server.CGIHTTPRequestHandler
+        #handler.cgi_directories = ["/"]
+        return handler
+
+    def basicHTTP(self):
+        # handler = http.server.BaseHTTPRequestHandler ## requires implementation
+        print()
+
+    def simpleHTTP(self):
+        return http.server.SimpleHTTPRequestHandler  # handles headers and GET
+
     def keep_running(self):
-        return True
+        if(time.time() < self.start_time + 30):
+            return True
+        else:
+            return False
