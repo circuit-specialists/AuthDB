@@ -1,6 +1,13 @@
+import sys
+sys.path.append(".")
 import database_manager
 import cgi, cgitb
 #cgitb.enable()		## allows for debugging errors from the cgi scripts in the browser
+
+## security features needed
+# set cookie
+# test javascript
+# after 5x attempts in 5min, ban for 30 min
 
 form = cgi.FieldStorage()
 
