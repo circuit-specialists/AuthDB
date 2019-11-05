@@ -32,20 +32,20 @@ class CLI:
             privilege = user_string.split(',')[4]
             print(db_man.addUser(organization, first_name, last_name, password, privilege))
         elif(args.rmUser != None):
-            user_string = str(args.newUser).replace(" ", "")
+            user_string = str(args.rmUser).replace(" ", "")
             organization = user_string.split(',')[0]
             first_name = user_string.split(',')[1]
             last_name = user_string.split(',')[2]
             print(db_man.removeUser(organization, first_name, last_name))
         elif(args.updPSW != None):
-            user_string = str(args.newUser).replace(" ", "")
+            user_string = str(args.updPSW).replace(" ", "")
             organization = user_string.split(',')[0]
             first_name = user_string.split(',')[1]
             last_name = user_string.split(',')[2]
             password = user_string.split(',')[3]
             print(db_man.updateUserPASS(organization, first_name, last_name, password))
         elif(args.updPRV != None):
-            user_string = str(args.newUser).replace(" ", "")
+            user_string = str(args.updPRV).replace(" ", "")
             organization = user_string.split(',')[0]
             first_name = user_string.split(',')[1]
             last_name = user_string.split(',')[2]
@@ -71,4 +71,3 @@ if __name__ == "__main__":
         main = CLI()
     except Exception as e:
         print("Exception: %s" % e)
-        sys.exit()

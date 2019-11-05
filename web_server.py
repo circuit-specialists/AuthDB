@@ -20,12 +20,15 @@ class SERVER:
 
     def cgiHTTP(self):
         handler = http.server.CGIHTTPRequestHandler
-        #handler.cgi_directories = ["/"]
+        handler.cgi_directories = ["cgi-bin"]
+        ## security features needed
+        # set cookie
+        # test javascript
+        # after 5x attempts in 5min, ban for 30 min
         return handler
 
     def basicHTTP(self):
-        # handler = http.server.BaseHTTPRequestHandler ## requires implementation
-        print()
+        handler = http.server.BaseHTTPRequestHandler ## requires implementation
 
     def simpleHTTP(self):
         return http.server.SimpleHTTPRequestHandler  # handles headers and GET

@@ -74,7 +74,7 @@ class MANAGER:
         user = self.findOne(self.authdb["Users"], {
                             "organization": organization, "first name": first_name, "last name": last_name})
         if(user is None):
-            return ("User %s, %s, %s successfully deleted" % (organization, first_name, last_name))
+            return ("User %s, %s, %s was successfully deleted" % (organization, first_name, last_name))
         else:
             return ("Error occured, User was not removed")
 
@@ -88,6 +88,23 @@ class MANAGER:
         users = self.authdb["Users"].delete_many({})
         return (users.deleted_count, " documents deleted.")
 
+    def updateUserPASS(self, organization, first_name, last_name, new_password):
+        organization = str(organization).lower()
+        first_name = str(first_name).lower()
+        last_name = str(last_name).lower()
+        new_password = self.pass_hash.hash_password(new_password)
+
+        user = self.findUser(organization, first_name, last_name)
+        old_password = str(user["password"])
+        query = {"organization": organization,
+                 "first name": first_name, "last name": last_name}
+        self.authdb["Users"].update_one(
+            query, {"$set": {"password": new_password}})
+        if(old_password != new_password):
+            return ("User %s, %s, %s password was successfully Updated" % (organization, first_name, last_name))
+        else:
+            return ("Error occured, User was not updated")
+
     def updateUserPRV(self, organization, first_name, last_name, new_privilege):
         organization = str(organization).lower()
         first_name = str(first_name).lower()
@@ -100,24 +117,10 @@ class MANAGER:
                  "first name": first_name, "last name": last_name}
         self.authdb["Users"].update_one(
             query, {"$set": {"privilege": new_privilege}})
-        if(old_privilege == new_privilege):
-            return ("User %s, %s, %s successfully Updated" % (organization, first_name, last_name))
-        else:
-            return ("Error occured, User was not updated")
-
-    def updateUserPASS(self, organization, first_name, last_name, new_password):
-        organization = str(organization).lower()
-        first_name = str(first_name).lower()
-        last_name = str(last_name).lower()
-
-        user = self.findUser(organization, first_name, last_name)
-        old_privilege = str(user["password"])
-        query = {"organization": organization,
-                 "first name": first_name, "last name": last_name}
-        self.authdb["Users"].update_one(
-            query, {"$set": {"password": new_password}})
-        if(old_privilege == new_password):
-            return ("User %s, %s, %s successfully Updated" % (organization, first_name, last_name))
+        if(old_privilege != new_privilege):
+            return ("User %s, %s, %s privilege was successfully Updated" % (organization, first_name, last_name))
+        elif(old_privilege == new_privilege):
+            return ("Privilege given was same as database")
         else:
             return ("Error occured, User was not updated")
 
@@ -131,13 +134,15 @@ class MANAGER:
             return ("Error occured, Collection was not removed")
 
     def checkDBExists(self, db_name=None):
-        db_name = self.authdb
+        if(db_name == None):
+            db_name = self.authdb
         dblist = self.client.list_database_names()
         if db_name in dblist:
             return ("The database %s exists." % db_name)
 
     def checkCollectionExists(self, collection=None):
-        collection = self.authdb["Users"]
+        if(collection == None):
+            collection = self.authdb["Users"]
         collist = self.authdb.list_collection_names()
         if collection in collist:
             return ("The collection %s exists." % collection)
