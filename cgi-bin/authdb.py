@@ -14,7 +14,9 @@ password = form.getvalue('password')
 
 html = """
     <html>
-    <head><title>User %s</title></head>
+    <head>
+    <meta http-equiv="refresh" content="3;url=/" />
+    <title>User %s</title></head>
     <body>
     <h1>%s</h1>
     <b>Organization : </b> %s <br>

@@ -20,7 +20,7 @@ class SERVER:
 
     def cgiHTTP(self):
         handler = http.server.CGIHTTPRequestHandler
-        handler.cgi_directories = ["cgi-bin"]
+        #handler.cgi_directories = ["cgi-bin"]
         ## security features needed
         # set cookie
         # test javascript
